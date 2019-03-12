@@ -2,24 +2,31 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
+	"video-maker/robots"
+	"video-maker/types"
 )
 
-// Content store the search preferences
-type Content struct {
-	searchTerm string
-	prefix     string
-}
-
 func main() {
-	var searchTerm = askAndReturnSearchTerm()
-	var prefix = askAndReturnPrefix()
+	searchTerm := askAndReturnSearchTerm()
 
-	if prefix != "Cancel" {
-		content := Content{searchTerm, prefix}
-		fmt.Printf("\n{searchTerm: %s, prefix: %s}", content.searchTerm, content.prefix)
+	chosePrefix := false
+
+	for !chosePrefix {
+		prefix, err := askAndReturnPrefix()
+
+		if err == nil {
+			chosePrefix = true
+
+			if prefix != "Cancel" {
+				content := types.Content{SearchTerm: searchTerm, Prefix: prefix}
+				robots.TextRobot(&content)
+				fmt.Printf("\n{%s %s %s}", content.Prefix, content.SearchTerm, content.Sentences)
+			}
+		}
 	}
 }
 
@@ -33,10 +40,11 @@ func askAndReturnSearchTerm() string {
 	return text
 }
 
-func askAndReturnPrefix() string {
+func askAndReturnPrefix() (string, error) {
 	fmt.Printf("\n")
-	var prefixes = [3]string{"Who is", "What is", "The history of"}
-	var prefix int
+	prefixes := [...]string{"Cancel", "Who is", "What is", "The history of"}
+
+	var prefix uint
 	fmt.Println("[1] Who is")
 	fmt.Println("[2] What is")
 	fmt.Println("[3] The history of")
@@ -44,9 +52,9 @@ func askAndReturnPrefix() string {
 	fmt.Printf("Which type: ")
 	fmt.Scanf("%d", &prefix)
 
-	if (prefix > 3) || (prefix < 1) {
-		return "Cancel"
+	if (prefix > 3) || (prefix < 0) {
+		return "", errors.New("Wrong type")
 	}
 
-	return prefixes[prefix-1]
+	return prefixes[prefix], nil
 }
