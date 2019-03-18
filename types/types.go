@@ -14,6 +14,7 @@ type Content struct {
 	SourceContentOriginal  string
 	SourceContentSanitized string
 	Sentences              []Sentence
+	MaximumSentences       int
 }
 
 // Credentials store the app credentials
