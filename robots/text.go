@@ -54,7 +54,7 @@ func breakContentIntoSentences(content *types.Content) {
 }
 
 func getAPIKey() string {
-	file, _ := os.Open("credentials/credentials.json")
+	file, _ := os.Open("credentials/algorithmia.json")
 	defer file.Close()
 	decoder := json.NewDecoder(file)
 	credentials := types.Credentials{}
