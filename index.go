@@ -22,7 +22,7 @@ func main() {
 			chosePrefix = true
 
 			if prefix != "Cancel" {
-				content := types.Content{SearchTerm: searchTerm, Prefix: prefix}
+				content := types.Content{SearchTerm: searchTerm, Prefix: prefix, MaximumSentences: 7}
 				robots.TextRobot(&content)
 				fmt.Printf("\n{%s %s %s}", content.Prefix, content.SearchTerm, content.Sentences)
 			}

@@ -6,6 +6,21 @@ File: `algorithmia.json`
 
 ```
 {
-  "apiKey": "sim8As72h56j3mBYqEOSHfLE4k81"
+  "APIKey": "sim8As72h56j3mBYqEOSHfLE4k81"
+}
+```
+
+## Watson Natural Language Understanding
+
+File: `watson-nlu.json`
+
+```
+{
+  "apikey": "xxx",
+  "iam_apikey_description": "xxx",
+  "iam_apikey_name": "xxx",
+  "iam_role_crn": "xxx",
+  "iam_serviceid_crn": "xxx",
+  "url": "xxx"
 }
 ```

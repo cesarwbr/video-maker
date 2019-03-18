@@ -8,6 +8,7 @@ import (
 	"video-maker/types"
 
 	algorithmia "github.com/algorithmiaio/algorithmia-go"
+	"github.com/watson-developer-cloud/go-sdk/naturallanguageunderstandingv1"
 	"gopkg.in/neurosnap/sentences.v1/english"
 )
 
@@ -16,6 +17,52 @@ func TextRobot(content *types.Content) {
 	fetchContentFromWikipedia(content)
 	sanitizeContent(content)
 	breakContentIntoSentences(content)
+	limitMaximumSentences(content)
+	fetchKeywordsOfAllSentences(content)
+}
+
+func fetchKeywordsOfAllSentences(content *types.Content) {
+	for index, sentence := range content.Sentences {
+		content.Sentences[index].Keywords = fetchWatsonAndReturnKeywords(sentence.Text)
+	}
+}
+
+func limitMaximumSentences(content *types.Content) {
+	content.Sentences = content.Sentences[0:content.MaximumSentences]
+}
+
+func fetchWatsonAndReturnKeywords(sentence string) []string {
+	service, serviceErr := naturallanguageunderstandingv1.NewNaturalLanguageUnderstandingV1(&naturallanguageunderstandingv1.NaturalLanguageUnderstandingV1Options{
+		URL:       "https://gateway.watsonplatform.net/natural-language-understanding/api",
+		Version:   "2018-03-16",
+		IAMApiKey: getWatsonAPIKey(),
+	})
+
+	if serviceErr != nil {
+		panic(serviceErr)
+	}
+
+	response, responseErr := service.Analyze(
+		&naturallanguageunderstandingv1.AnalyzeOptions{
+			Text: &sentence,
+			Features: &naturallanguageunderstandingv1.Features{
+				Keywords: &naturallanguageunderstandingv1.KeywordsOptions{},
+			},
+		},
+	)
+
+	if responseErr != nil {
+		panic(responseErr)
+	}
+
+	analyze := service.GetAnalyzeResult(response)
+
+	var keywords []string
+	for _, keyword := range analyze.Keywords {
+		keywords = append(keywords, *keyword.Text)
+	}
+
+	return keywords
 }
 
 func fetchContentFromWikipedia(content *types.Content) {
@@ -54,7 +101,20 @@ func breakContentIntoSentences(content *types.Content) {
 }
 
 func getAPIKey() string {
-	file, _ := os.Open("credentials/credentials.json")
+	file, _ := os.Open("credentials/algorithmia.json")
+	defer file.Close()
+	decoder := json.NewDecoder(file)
+	credentials := types.Credentials{}
+	err := decoder.Decode(&credentials)
+	if err != nil {
+		panic(err)
+	}
+
+	return credentials.APIKey
+}
+
+func getWatsonAPIKey() string {
+	file, _ := os.Open("credentials/watson-nlu.json")
 	defer file.Close()
 	decoder := json.NewDecoder(file)
 	credentials := types.Credentials{}
