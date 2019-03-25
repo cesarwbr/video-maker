@@ -1,60 +1,28 @@
 package main
 
 import (
-	"bufio"
-	"errors"
+	"encoding/json"
 	"fmt"
-	"os"
-	"strings"
+	"time"
 	"video-maker/robots"
-	"video-maker/types"
+
+	"github.com/briandowns/spinner"
 )
 
 func main() {
-	searchTerm := askAndReturnSearchTerm()
+	s := spinner.New(spinner.CharSets[14], 100*time.Millisecond)
 
-	chosePrefix := false
+	robots.InputRobot()
 
-	for !chosePrefix {
-		prefix, err := askAndReturnPrefix()
+	s.Start()
+	robots.TextRobot()
+	s.Stop()
 
-		if err == nil {
-			chosePrefix = true
-
-			if prefix != "Cancel" {
-				content := types.Content{SearchTerm: searchTerm, Prefix: prefix, MaximumSentences: 7}
-				robots.TextRobot(&content)
-				fmt.Printf("\n{%s %s %s}", content.Prefix, content.SearchTerm, content.Sentences)
-			}
-		}
-	}
+	content := robots.Load()
+	fmt.Println(prettyPrint(content))
 }
 
-func askAndReturnSearchTerm() string {
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Printf("Type a Wikipedia search term: ")
-	text, _ := reader.ReadString('\n')
-
-	text = strings.TrimSuffix(text, "\n")
-
-	return text
-}
-
-func askAndReturnPrefix() (string, error) {
-	fmt.Printf("\n")
-	prefixes := [...]string{"Cancel", "Who is", "What is", "The history of"}
-
-	var prefix uint
-	fmt.Println("[1] Who is")
-	fmt.Println("[2] What is")
-	fmt.Println("[3] The history of")
-	fmt.Printf("[0] Cancel\n\n")
-	fmt.Printf("Which type: ")
-	fmt.Scanf("%d", &prefix)
-
-	if (prefix > 3) || (prefix < 0) {
-		return "", errors.New("Wrong type")
-	}
-
-	return prefixes[prefix], nil
+func prettyPrint(i interface{}) string {
+	s, _ := json.MarshalIndent(i, "", "\t")
+	return string(s)
 }

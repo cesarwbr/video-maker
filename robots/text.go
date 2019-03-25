@@ -13,12 +13,16 @@ import (
 )
 
 // TextRobot create a new robot
-func TextRobot(content *types.Content) {
+func TextRobot() {
+	content := Load()
+
 	fetchContentFromWikipedia(content)
 	sanitizeContent(content)
 	breakContentIntoSentences(content)
 	limitMaximumSentences(content)
 	fetchKeywordsOfAllSentences(content)
+
+	Save(content)
 }
 
 func fetchKeywordsOfAllSentences(content *types.Content) {

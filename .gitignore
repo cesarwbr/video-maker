@@ -13,3 +13,5 @@
 
 # Credentials
 credentials/*.json
+
+content.json

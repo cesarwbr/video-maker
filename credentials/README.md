@@ -16,7 +16,7 @@ File: `watson-nlu.json`
 
 ```
 {
-  "apikey": "xxx",
+  "APIKey": "xxx",
   "iam_apikey_description": "xxx",
   "iam_apikey_name": "xxx",
   "iam_role_crn": "xxx",
