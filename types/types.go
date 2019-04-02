@@ -2,9 +2,10 @@ package types
 
 // Sentence define a sentence
 type Sentence struct {
-	Text     string
-	Keywords []string
-	Images   []string
+	Text              string
+	Keywords          []string
+	Images            []string
+	GoogleSearchQuery string
 }
 
 // Content store the search preferences
@@ -19,5 +20,6 @@ type Content struct {
 
 // Credentials store the app credentials
 type Credentials struct {
-	APIKey string
+	APIKey         string
+	SearchEngineID string
 }
