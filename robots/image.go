@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"strconv"
 	"video-maker/types"
 
@@ -20,8 +21,91 @@ func ImageRobot() {
 
 	fetchImagesOfAllSentences(content)
 	downloadAllImages(content)
+	convertAllImages(content)
+	createAllSentenceImages(content)
+	createYouTubeThumbnail()
 
 	Save(content)
+}
+
+func createYouTubeThumbnail() {
+	cmd := "convert"
+	args := []string{
+		"./content/0-converted.png",
+		"./content/youtube-thumbnail.jpg"}
+
+	err := exec.Command(cmd, args...).Run()
+
+	if err != nil {
+		panic(err)
+	}
+}
+
+func createAllSentenceImages(content *types.Content) {
+	for sentenceIndex, sentence := range content.Sentences {
+		createSentenceImage(sentenceIndex, sentence.Text)
+	}
+}
+
+type templateSetting struct {
+	size    string
+	gravity string
+}
+
+func createSentenceImage(sentenceIndex int, sentenceText string) {
+	outputFile := "./content/" + strconv.Itoa(sentenceIndex) + "-sentence.png"
+
+	templateSettings := []templateSetting{
+		{"1920x400", "center"},
+		{"1920x1080", "center"},
+		{"800x1080", "west"},
+		{"1920x400", "center"},
+		{"1920x1080", "center"},
+		{"800x1080", "west"},
+		{"1920x400", "center"}}
+
+	cmd := "convert"
+	args := []string{
+		"-size", templateSettings[sentenceIndex].size,
+		"-gravity", templateSettings[sentenceIndex].gravity,
+		"-background", "transparent",
+		"-fill", "white",
+		"-kerning", "-1",
+		"caption:" + sentenceText,
+		outputFile}
+
+	err := exec.Command(cmd, args...).Run()
+
+	if err != nil {
+		panic(err)
+	}
+}
+
+func convertAllImages(content *types.Content) {
+	for sentenceIndex := range content.Sentences {
+		convertImage(sentenceIndex)
+	}
+}
+
+func convertImage(sentenceIndex int) {
+	inputFile := "./content/" + strconv.Itoa(sentenceIndex) + "-original.png[0]"
+	outputFile := "./content/" + strconv.Itoa(sentenceIndex) + "-converted.png"
+
+	newSize := "1920x1080"
+
+	cmd := "convert"
+	args := []string{
+		inputFile,
+		"(", "-clone", "0", "-background", "white", "-blur", "0x9", "-resize", newSize + "^", ")",
+		"(", "-clone", "0", "-background", "white", "-resize", newSize, ")",
+		"-delete", "0", "-gravity", "center", "-compose", "over", "-composite", "-extent", newSize,
+		outputFile}
+
+	err := exec.Command(cmd, args...).Run()
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func downloadAllImages(content *types.Content) {
