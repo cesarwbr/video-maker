@@ -17,6 +17,7 @@ func main() {
 	s.Start()
 	robots.TextRobot()
 	robots.ImageRobot()
+	robots.VideoRobot()
 	s.Stop()
 
 	content := robots.Load()
